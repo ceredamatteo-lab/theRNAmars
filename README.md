@@ -107,9 +107,31 @@ Results from the two modules are stored in `DIR_RNAMARS/results/RNAmotifs/` and 
 `DIR_RNAMARS/results/RNAmotifs/` is further divided in additional result folders, one per each optimal parameter combination found during RNAMaRs training.
 
 `DIR_RNAMARS/results/RNAmars/NAME_on_CELL_LINE` contains the results of the RNAMaRs run, consisting in:
-- Summary files of RNAmotifs results (in `.rds` format).
-- Association score matrix (in `.rds` format).
-- Association score heatmap (in `.pdf` format).
+
+| Format | Description |
+|--------|------------|
+| `summary_results_NAME_hw_x_ew_y.rds` | Summary files of RNAmotifs results, one per each optimal parameter combination |
+| `SCORE1_{enh_sil}_signal_recovery_rate_{NAME}.rds` | Signal recovery rates from training |
+| `SCORE2_{enh_sil}_profile_similarity_{NAME}.rds` | Cosine similarity between RNAmotifs-derived tetramer enrichment scores and reference cell line binding profile |
+| `final_mat_prot_score_{enh/sil}.rds` | Protein score matrix |
+| `final_mat_tet_score_{enh/sil}.rds` | Tetramer score matrix |
+| `final_mat_{enh/sil}.rds` | Association score matrix |
+| `{CELL_LINE}_{NAME}_{enh/sil}.pdf` | Association score heatmaps |
+
+## Output
+The output of RNAMaRs are two heatmaps - one for enhanced exons and one for silenced exons - that quantifies the association between multivalent RNA motifs (columns) and cognate RBPs (rows). These heatmaps were obtained using exons from HNRNPK depletion in PC3 cells: you can find the file at `input/HNRNPK_silencing_72h_input_rnamotifs.txt`.
+
+<p align="center"><img width="770" height="228" alt="RNAMaRs_overview" src="https://github.com/user-attachments/assets/d5c54331-7eb1-4cc0-b5b6-5a90f786a9f1" /></p>
+
+From left to right, the plot reports:
++ Results of differential gene expression analysis by means of `|log2FoldChange|`. Direction of regulation is also shown.
++ Binding profile of the RBP in the reference cell line, restricted to regulation type (enhanced/silenced) in the three regions under analysis: upstream intron (R1), exon (R2) and downstream intron (R3).
++ A bar plot of the mean association score of the RBP with all enriched tetramers. This value was used to sort RBPs along the rows.
++ Main heatmap: dot plot reporting the RBP-tetramer association score. This value was obtained by the product of SCORE1 (signal recovery rate) and SCORE2 (cosine similarity), previously computed. Dot color and size of dots are proportional to AS.
++ Top heatmap reports combined regional enrichments (CRE) of multivalent RNA motifs across RNAmotifs runs, aggregated using Fisher's method. Top bar plot reports summed CRE values across regions, namely cumulative CRE (CCRE).
++ RNAmotifs-based splicing maps.
+
+Note that RNAMaRs results are limited to RBPs used during training (15 for HepG2 and 13 for K562) and subset to input cassette exons with at least one overlapping eCLIP peak and harboring at least one enriched tetramer.
 
 ## Contributors
 RNAMaRs has been designed by Dr Matteo Cereda and Uberto Pozzoli and developed with Tommaso Becchi, Gabriele Boscagli, Mariachiara Grieco and Francesca Priante.
