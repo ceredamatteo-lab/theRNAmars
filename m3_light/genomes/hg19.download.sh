@@ -1,4 +1,4 @@
-wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/twoBitToFa
+wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64.v369/twoBitToFa
 chmod 775 twoBitToFa
 mkdir hg19
 cd hg19
