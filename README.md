@@ -1,5 +1,5 @@
 # RNAMaRs
-RNAMaRs is a computational framework that integrates multivalent RNA motifs discovery (MRM) with in vivo RBP binding and functional splicing evidence to infer MRM-RBP associations.
+RNAMaRs is a computational framework that integrates multivalent RNA motifs (MRMs) discovery with in vivo RBP binding and functional splicing evidence to infer MRM-RBP associations.
 
 <img width="2730" height="755" alt="RNAMaRs_overview" src="https://github.com/user-attachments/assets/464ac58d-81a4-4a5a-817f-9620b382e0f3" />
 
@@ -62,7 +62,7 @@ This is an example of how the input file should look like:
 
 
 ## Usage
-RNAMaRs runs from command-line using `RNAMaRs.sh`. At first, the script runs RNAmotifs internally; then, the RNAMaRs module computes and plots association scores between RNAmotifs-based enriched tetramers and RBP binding evidence obtained from RNAMaRs training.
+RNAMaRs runs from command-line with `RNAMaRs.sh`. At first, the script runs RNAmotifs internally; then, the RNAMaRs module computes and plots the association score (AS) between RNAmotifs-based enriched tetramers and RBP binding evidence previously computed.
 
 ```
 ./RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DESEQ_FILE $DIR_ECLIP $CPUS
@@ -72,15 +72,15 @@ RNAMaRs runs from command-line using `RNAMaRs.sh`. At first, the script runs RNA
 
 | Syntax | Description | Example
 | ----------- | ----------- | ----------- |
-NAME | Name of the folder used to name in RNAmotifs and RNAMaRs results | "HNRNPK_silencing_72h"
+NAME | Name of the folder used to save RNAmotifs and RNAMaRs results | "HNRNPK_silencing_72h"
 DIR_RNAMARS | Path to RNAMaRs tool | "path/to/local/theRNAmars/"
 INPUT_EXONS_FILE | Text file containing alternative and constitutive exons (organized as described in `Input` section) | "HNRNPK_silencing_72h_input_rnamotifs.txt"
 CELL_LINE | Cell line to use as reference (it must be: `HepG2` or `K562`) | "HepG2"
-DESEQ_FILE | Path to differential gene expression table. File can be both in `.tsv` or `.rds` format. Optional: if not available, just leave "" | "DESeq2_HNRNPK_silencing_72h_DEG.csv"
-DIR_ECLIP | Path to processed iCount peaks. This must contain `HepG2` and `K562` subdirectories | "Sources/eCLIP/"
+DESEQ_FILE | Path to differential gene expression table (optional). File can be both in `.tsv` or `.rds` format. If not available, just leave `""` | "DESeq2_HNRNPK_silencing_72h_DEG.csv"
+DIR_ECLIP | Path to processed iCount peaks. This must contain `HepG2` and `K562` subdirectories | "DIR_RNAMARS/Sources/eCLIP/"
 CPUS | How many CPUs to use | 14
 
-Additionally, one could run RNAmotifs and RNAMaRs separately using `01_RNAmotifs.sh` and `02_RNAmars.sh` from command-line as follows:
+Additionally, user could run RNAmotifs and RNAMaRs separately using `01_RNAmotifs.sh` and `02_RNAmars.sh` from command-line as follows:
 
 ```
 ./01_RNAmotifs.sh $NAME $DIR_RNAMOTIFS $INPUT_EXONS_FILE $CELL_LINE $CPUS
@@ -90,7 +90,7 @@ Additionally, one could run RNAmotifs and RNAMaRs separately using `01_RNAmotifs
 ./02_RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DESEQ_FILE $DIR_ECLIP $CPUS
 ```
 
-Bear in mind that RNAMaRs won't work if RNAmotifs results for the same exons are not available.
+Bear in mind that RNAMaRs module will not work if RNAmotifs has not been previously run.
 
 `DESEQ_FILE` must be in the following format:
 
@@ -99,19 +99,19 @@ baseMean	log2FoldChange	lfcSE	stat	pvalue	padj	gene_name	deg
 ENSG00000000003.14	1207.23729680793	-0.594757925435271	0.13697550117035	-4.34207519120954	1.41143208787687e-05	3.9999563754732e-05	TSPAN6	TRUE
 ENSG00000000419.12	1366.72558786783	0.0858651981950839	0.123396414060123	0.695848407339028	0.486523770255723	0.575036991227159	DPM1	FALSE
 ```
-with gene IDs as rownames. Stratification of genes as DEG/non-DEG can be added in the `deg` column for visualization purposes. If no `deg` column is provided, RNAMaRs will automatically assign as DEGs genes with `padj` ≤ 0.1 and `|log2FoldChange|` ≥ 0.1.
+with gene IDs as rownames. Stratification of genes as DEGs (TRUE/FALSE) can be added in the `deg` column for visualization purposes. If `deg` column is not provided, RNAMaRs will automatically consider as DEG genes with `padj` ≤ 0.1 and `|log2FoldChange|` ≥ 0.1.
 
 ## Results
 Results from the two modules are stored in `DIR_RNAMARS/results/RNAmotifs/` and `DIR_RNAMARS/results/RNAmars/`, respectively.
 
-`DIR_RNAMARS/results/RNAmotifs/` is further divided in additional result folders, one per each optimal parameter combination found during RNAMaRs training.
+`DIR_RNAMARS/results/RNAmotifs/` is further divided in additional result folders, one per each optimal parameter combination.
 
 `DIR_RNAMARS/results/RNAmars/NAME_on_CELL_LINE` contains the results of the RNAMaRs run, consisting in:
 
 | Format | Description |
 |--------|------------|
-| `summary_results_NAME_hw_x_ew_y.rds` | Summary files of RNAmotifs results, one per each optimal parameter combination |
-| `SCORE1_{enh_sil}_signal_recovery_rate_{NAME}.rds` | Signal recovery rates from training |
+| `summary_results_NAME_hw_x_ew_y.rds` | Summary files of RNAmotifs results, one per each optimal parameter combination x,y |
+| `SCORE1_{enh_sil}_signal_recovery_rate_{NAME}.rds` | Signal recovery rates for the specific RBP |
 | `SCORE2_{enh_sil}_profile_similarity_{NAME}.rds` | Cosine similarity between RNAmotifs-derived tetramer enrichment scores and reference cell line binding profile |
 | `final_mat_prot_score_{enh/sil}.rds` | Protein score matrix |
 | `final_mat_tet_score_{enh/sil}.rds` | Tetramer score matrix |
@@ -119,19 +119,18 @@ Results from the two modules are stored in `DIR_RNAMARS/results/RNAmotifs/` and 
 | `{CELL_LINE}_{NAME}_{enh/sil}.pdf` | Association score heatmaps |
 
 ## Output
-The output of RNAMaRs are two heatmaps - one for enhanced exons and one for silenced exons - that quantifies the association between multivalent RNA motifs (columns) and cognate RBPs (rows). These heatmaps were obtained using exons from HNRNPK depletion in PC3 cells: you can find the file at `input/HNRNPK_silencing_72h_input_rnamotifs.txt`.
+The graphical output of RNAMaRs are two heatmaps - one for enhanced exons and one for silenced exons - that quantifies the association between MRMs (columns) and cognate RBPs (rows). In this example, these heatmaps were obtained using exons from HNRNPK depletion in PC3 cells, as described in the paper: you can find the file at `input/HNRNPK_silencing_72h_input_rnamotifs.txt`.
 
 <p align="center"><img width="770" height="228" alt="RNAMaRs_overview" src="https://github.com/user-attachments/assets/d5c54331-7eb1-4cc0-b5b6-5a90f786a9f1" /></p>
 
 From left to right, the plot reports:
 + Results of differential gene expression analysis by means of `|log2FoldChange|`. Direction of regulation is also shown.
 + Binding profile of the RBP in the reference cell line, restricted to regulation type (enhanced/silenced) in the three regions under analysis: upstream intron (R1), exon (R2) and downstream intron (R3).
-+ A bar plot of the mean association score of the RBP with all enriched tetramers. This value was used to sort RBPs along the rows.
-+ Main heatmap: dot plot reporting the RBP-tetramer association score. This value was obtained by the product of SCORE1 (signal recovery rate) and SCORE2 (cosine similarity), previously computed. Dot color and size of dots are proportional to AS.
-+ Top heatmap reports combined regional enrichments (CRE) of multivalent RNA motifs across RNAmotifs runs, aggregated using Fisher's method. Top bar plot reports summed CRE values across regions, namely cumulative CRE (CCRE).
++ A bar plot of the mean AS of the RBP with all enriched tetramers. This value was used to sort RBPs along the rows.
++ Main heatmap: dot plot reporting the RBP-tetramer AS. This value was obtained by the product of SCORE1 (signal recovery rate) and SCORE2 (cosine similarity). Dot color and size of dots are proportional to AS.
++ Top heatmap reports combined regional enrichments (CRE) of MRMs across RNAmotifs runs, aggregated using Fisher's method. Top bar plot reports summed CRE values across regions, namely cumulative CRE (CCRE).
 + RNAmotifs-based splicing maps.
 
-Note that RNAMaRs results are limited to RBPs used during training (15 for HepG2 and 13 for K562) and subset to input cassette exons with at least one overlapping eCLIP peak and harboring at least one enriched tetramer.
 
 ## Contributors
 RNAMaRs has been designed by Dr Matteo Cereda and Uberto Pozzoli and developed with Tommaso Becchi, Gabriele Boscagli, Mariachiara Grieco and Francesca Priante.
