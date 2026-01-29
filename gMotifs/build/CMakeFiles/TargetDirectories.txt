@@ -1,0 +1,8 @@
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/install/strip.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/install/local.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/counting.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/edit_cache.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/rebuild_cache.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/install.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/tetramer.dir
+/hpcnfs/data/cgb/RNAmotifs_devel_Alberto/gMotifs/build/CMakeFiles/list_install_components.dir

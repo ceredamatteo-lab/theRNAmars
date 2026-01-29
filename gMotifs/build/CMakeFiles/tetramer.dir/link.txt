@@ -1,0 +1,1 @@
+/bin/c++ -rdynamic CMakeFiles/tetramer.dir/tetramer.cpp.o CMakeFiles/tetramer.dir/anyoption.cpp.o CMakeFiles/tetramer.dir/inc.cpp.o CMakeFiles/tetramer.dir/geco_array.cpp.o CMakeFiles/tetramer.dir/geco_base.cpp.o -o tetramer 
