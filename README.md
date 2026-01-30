@@ -119,7 +119,7 @@ Results from the two modules are stored in `DIR_RNAMARS/results/RNAmotifs/` and 
 | `{CELL_LINE}_{NAME}_{enh/sil}.pdf` | Association score heatmaps |
 
 ## Output
-The graphical output of RNAMaRs are two heatmaps - one for enhanced exons and one for silenced exons - that quantifies the association between MRMs (columns) and cognate RBPs (rows). In this example, these heatmaps were obtained using exons from HNRNPK depletion in PC3 cells, as described in the paper: you can find the file at `input/HNRNPK_silencing_72h_input_rnamotifs.txt`.
+The graphical output of RNAMaRs are two heatmaps - one for enhanced exons and one for silenced exons - that quantify the association between MRMs (columns) and cognate RBPs (rows). In this example, these heatmaps were obtained using exons from HNRNPK depletion in PC3 cells, as described in the paper: you can find the file at `input/HNRNPK_silencing_72h_input_rnamotifs.txt`.
 
 <p align="center"><img width="770" height="228" alt="RNAMaRs_overview" src="https://github.com/user-attachments/assets/d5c54331-7eb1-4cc0-b5b6-5a90f786a9f1" /></p>
 
@@ -133,7 +133,7 @@ From left to right, the plot reports:
 
 
 ## Contributors
-RNAMaRs has been designed by Dr Matteo Cereda and Uberto Pozzoli and developed with Tommaso Becchi, Gabriele Boscagli, Mariachiara Grieco and Francesca Priante.
+RNAMaRs has been designed by Dr. Matteo Cereda and Uberto Pozzoli and developed with Tommaso Becchi, Gabriele Boscagli, Mariachiara Grieco and Francesca Priante.
 
 Main developer: Tommaso Becchi, Gabriele Boscagli and Mariachiara Grieco.
 
