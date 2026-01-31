@@ -1,8 +1,10 @@
-# RNAMaRs
-RNAMaRs is a computational framework that integrates multivalent RNA motifs (MRMs) discovery with in vivo RBP binding and functional splicing evidence to infer MRM-RBP associations.
+<img width="1470" height="610" alt="logo" src="https://github.com/user-attachments/assets/64b458f3-06ab-4291-80fe-279f70b27173" />
+
+
+
+RNAMaRs is a computational framework that integrates multivalent RNA motifs discovery with in vivo RBP binding and functional splicing evidence to infer MRM-RBP associations. RNAMaRs takes as input a set of cassette exons annotated (enhanced, silenced, and constitutive), together with a reference cell line for crosslinking data (HepG2 or K562). The algorithms exploits RNAmotifs with RBP-optimized parameters to identify multivalent RNA motifs enriched around the input exons, then computes motif-protein association scores (ASs) by comparing motif-derived splicing maps to eCLIP-derived binding maps. The primary outputs are two AS matrices (enhanced and silenced), along with summary visualizations that combine motif enrichment, regional binding preferences, RNA splicing maps and candidate regulators.
 
 <img width="2730" height="755" alt="RNAMaRs_overview" src="https://github.com/user-attachments/assets/464ac58d-81a4-4a5a-817f-9620b382e0f3" />
-
 
 ## Installation
 
