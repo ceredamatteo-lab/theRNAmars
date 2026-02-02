@@ -44,8 +44,6 @@ DIR_OUTPUT            = opt$output
 # Set up =========================================================
 setwd(repo)
 source('Scripts/conf/config_RNAmars.R')
-#source(paste0(repo, "Scripts/conf/config_FP.R"))
-#source(paste0(repo, "Scripts/conf/config_RNAmars_2022_05.R"))
 
 
 # TRAINING RBPS DEFINITION ================
@@ -55,8 +53,8 @@ if (cell_line_target == "HepG2"){
   rbps = c("AGGF1", "EFTUD2", "FXR1", "HNRNPU", "PRPF8", "PTBP1", "PUS1", "RBM15", "SF3B4", "SRSF1", "TARDBP", "U2AF1", "U2AF2")
 }
 
-## Optimal set of params
 
+## Optimal set of params
 OPT <- read.csv(file.path(repo, "Tables/RNAmotifs_optimal_parameters.csv"), stringsAsFactors = FALSE)
 PARAMS = subset(OPT, true_rbp %in% rbps)
 colnames(PARAMS)[colnames(PARAMS)=='true_rbp']<- 'pr'
@@ -65,12 +63,9 @@ colnames(PARAMS)[colnames(PARAMS)=='true_rbp']<- 'pr'
 PEAK = readRDS(paste0("Rdata/",cell_line_target, "_binding_profile_PEAK_normalized.rds"))
 
 
-# number of events ===============
-#events = read.delim2(READY_RNAMOTIFS_INPUT, header=F, sep =';')
-
 # Splicing maps  ================
 
-message(noquote("[*] Creating splicing maps using RBP-specific optimized parameters"))
+message(noquote("\n[*] Creating splicing maps using RBP-specific optimized parameters..."))
 all_splicingMaps = do.call(rbind,lapply(unique(OPT$params), function(y){
   params = unlist(str_split(y, '_'))[c(2,4)]
  
@@ -116,7 +111,7 @@ all_splicingMaps$height_sil = as.numeric(all_splicingMaps$height_sil)
 message(noquote("[*] RNAmotifs splicing maps created and ready for final heatmap."))
 
 # DEseq2 ===============================
-message(noquote("[*] Importing DESeq2 differential genes"))
+message(noquote("\n[*] Importing DESeq2 differential genes..."))
 if (file.exists(deseq_file) & deseq_file %like% '.tsv') {
   deseq = read.delim(deseq_file)
   sub_deseq = subset(deseq, gene_name %in% rbps)
@@ -201,7 +196,7 @@ for ( typeAS in c('enh','sil')) {
     tet_score = res[[4]]
     pval_legend = res[[5]]
     
-    message(noquote("[*] Saving heatmap as rds file..."))
+    message(noquote("\n[*] Saving heatmap as rds file..."))
     saveRDS(mat, paste0(DIR_OUTPUT, '/final_mat_',typeAS,'.rds'))
     saveRDS(tet_score, paste0(DIR_OUTPUT, '/final_mat_tet_score_',typeAS,'.rds'))
     saveRDS(ranking, paste0(DIR_OUTPUT, '/final_mat_prot_score_',typeAS,'.rds'))

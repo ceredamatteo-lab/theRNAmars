@@ -33,11 +33,7 @@ setwd(wd)
 wr = c("r/","nr/")
 ff = c("fisher-redundant-RSYW-percent-","fisher-not-redundant-percent-")
 
-# rown = c(950:1200,1800:2050,2950:3200,3800:4050)
-
 regions   = 2000
-# inExon    = 50
-# inIntron  = 200
 
 rown = c((regions*1-inExon):(regions*1+inIntron),
          (regions*2-inIntron):(regions*2+inExon),
@@ -48,24 +44,12 @@ rown = c((regions*1-inExon):(regions*1+inIntron),
 # RUN SELECTION
 #---------------
 
-
-# print.logo()
-# 
-# cat("\nSelecting significantly enriched motifs...\n")
-# 	
-# load(paste0(pp,"bootstrap_",bootstrapN,".Rdata"))
-# 
-# res     = outRes
-# 
-# # res[,2:13]= apply(res[,2:13],2,as.numeric) 
-# #res[,1] = sapply(strsplit(sapply(strsplit(res[,1],"/"),function(x) x[length(x)]),"_region"),function(x) x[1])
-
 suppressWarnings(library(lattice))
 suppressWarnings(library(latticeExtra))
 suppressWarnings(library(bootstrap))
-suppressWarnings(library(plyr))
-suppressWarnings(library(tidyr))
-suppressWarnings(library(dplyr))
+suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
 
 print.logo()
 
@@ -101,16 +85,6 @@ sig = subset(res,
                (r3enh_pFis < p_cutoff[3] & r3enh_pEmp <= cEmp) | (r3sil_pFis < p_cutoff[3] & r3sil_pEmp <= cEmp)
 )
 
-# sig = subset(res, 
-#              (r2enh_pFis<=cFisher & r2enh_pEmp<=cEmp) | 
-#                (r2sil_pFis<=cFisher & r2sil_pEmp<=cEmp)
-# )
-
-
-# x = grep("S",aa[,1]); if(length(x)>0) aa = aa[-x,]
-# x = grep("W",aa[,1]); if(length(x)>0) aa = aa[-x,]
-	
-# sig  = subset(aa, r1enh_pEmp<=cEmp | r2enh_pEmp<=cEmp | r3enh_pEmp<=cEmp | r1sil_pEmp<=cEmp | r2sil_pEmp<=cEmp | r3sil_pEmp<=cEmp )
 
 if(nrow(sig)>0){	
 	cat("\nSignificantly enriched motifs:\t",nrow(sig),"\n")
@@ -130,8 +104,6 @@ if(nrow(sig)>0){
 
 	s$where.sign = apply(x1+x2,2,function(x) paste(which(x==2),collapse=","))
 	s$is.sign=s$where.sign!=""
-	#s$where.sign[which(s$where.sign=='')] = NA
-	#sig= subset(s,where!="")
 
 	df_enriched_tetramers=s
 
@@ -146,7 +118,7 @@ if(nrow(sig)>0){
 	CEminone = et["-1"]
 	CEzero   = et["0"]
 	
-	# calulate fisher at single positions
+	# calculate fisher at single positions
 	cat("\nCalculating fisher's test at single positions...\n")
 
 	p.ena = p.sil = cbind()
@@ -158,19 +130,6 @@ if(nrow(sig)>0){
 		}
 	}	
 	
-	# write.csv(ll[["enh"]],
-	#           file=paste0(pp,"ll_enh-",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".csv"),
-	#           row.names=F)
-	# write.csv(ll[["sil"]],
-	#           file=paste0(pp,"ll_sil-",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".csv"),
-	#           row.names=F)
-	# write.csv(p.ena,
-	#           file=paste0(pp,"p.ena-",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".csv"),
-	#           row.names=F)
-	# write.csv(p.sil,
-	#           file=paste0(pp,"p.sil-",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".csv"),
-	#           row.names=F)
-
 
 	#------------------------------------------------------
 	# FISHER S METHOD : SUM LOG2 PVALUE ENHANCED, SILENCED
@@ -240,20 +199,18 @@ if(nrow(sig)>0){
 	datar$z = datar$z/ms
 
 	###
-	# datar = datar[datar$g  %in% c("WCCY","WCAS","SCTY","YCTY","YGCY","YTCY","TTTC","YTTS"),]
-	# rcol = rcol[which(names(rcol) %in% c("WCCY","WCAS","SCTY","YCTY","YGCY","YTCY","TTTC","YTTS"))]
-	#ms      = max(datar$s)
-
+	
 	write.table(df_ord[,1], file = paste0(pp,"enriched_tetramers.txt"), sep="\n", quote=F, row.names=F, col.names=F)
 	write.table(df_ord, file = paste0(pp,"cluster_ids.txt"), sep = "\n", quote = F, row.names = F, col.names = F)
 
 	prn = rnaScoreMap(datar,rcol,ylabels=c("",as.character(floor(ms))), exon = inExon, intron = inIntron)
 	prn = update(prn,lwd=0.8)
 
-	pdf(file=paste(pp,format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".pdf",sep="",collapse=""),
+	suppressWarnings({pdf(file=paste(pp,format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".pdf",sep="",collapse=""),
 		height=10, width = 10)
 	print(prn,panel.height=list(0.4,"cm"),panel.width=list(10,"cm"))
 	dev.off()
+        })
 	save(prn, file=paste(pp,format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".Rdata",sep="",collapse=""))
 
 }else{

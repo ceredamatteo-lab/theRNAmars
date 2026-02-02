@@ -98,6 +98,7 @@ echo ""
 
 
 Rscript --vanilla ${DIR_RNAMARS}/Scripts/compute_association_scores.R --input ${INPUT_EXONS_FILE} \
+  --name ${NAME} \
   --RNAmotifs_res ${DIR_RNAMARS}/results/RNAmotifs \
   --repository ${DIR_RNAMARS}/ \
   --cell_line ${CELL_LINE} \
@@ -107,6 +108,7 @@ Rscript --vanilla ${DIR_RNAMARS}/Scripts/compute_association_scores.R --input ${
 
 
 Rscript --vanilla ${DIR_RNAMARS}/Scripts/generate_heatmap.R --input ${INPUT_EXONS_FILE} \
+  --name ${NAME} \
   --RNAmotifs_res ${DIR_RNAMARS}/results/RNAmotifs \
   --repository ${DIR_RNAMARS}/ \
   --cell_line ${CELL_LINE} \

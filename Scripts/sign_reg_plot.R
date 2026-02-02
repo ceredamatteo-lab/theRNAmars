@@ -1,6 +1,6 @@
-suppressWarnings(library(plyr))
-suppressWarnings(library(dplyr))
-suppressWarnings(library(tidyr))
+suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
 
 args = commandArgs(TRUE)
 
@@ -96,6 +96,7 @@ if (dim(res)[1]>1) {
 }
 
 write.csv(x,file = paste0(res_dir,pr_folder,"/regions.csv"))
-pdf(file=paste0(res_dir,pr_folder,"/regions.pdf"))
+suppressWarnings({pdf(file=paste0(res_dir,pr_folder,"/regions.pdf"))
 plot(x, col = c("purple","blue","red"), breaks = c("Both", "Silenced","Enhanced"), axis.row=NULL, axis.col=NULL, ann=F, asp=T,yaxt="n")
 dev.off()
+})

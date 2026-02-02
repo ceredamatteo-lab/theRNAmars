@@ -2,16 +2,6 @@
 ## Configuration file by Matteo Cereda <matteo.cereda@kcl.ac.uk>
 #######################################################################################
 
-
-#pkgsR  =  c("lattice","latticeExtra","bootstrap")
-#for (pkgR in pkgsR)
-#  if (!pkgR %in% rownames(installed.packages())) {
-#    install.packages(pkgR)
-#    library(pkgR, character.only = TRUE, quietly = TRUE)
-#  } else {
-#    library(pkgR, character.only = TRUE, quietly = TRUE)
-#  }
-
 colorFun = colorRampPalette(c('blue4','blue1',"yellow","red1",'red4'))
 ggrey     = "grey95"
 grey.line = rgb(94,90,90,max=255)
@@ -22,13 +12,6 @@ IUPAC_CODE=c('A','C','T','G','(A/G)','(C/T)','(G/C)','(A/T)','(G/T)','(A/C)','(C
 names(IUPAC_CODE) = c('A','C','T','G','R','Y','S','W','K','M','B','D','H','V')
 
 regions   = 2000
-# inExon    = 50
-# inIntron  = 200
-
-# rown = c((regions*1-inExon):(regions*1+inIntron),
-#          (regions*2-inIntron):(regions*2+inExon),
-#          (regions*3-inExon):(regions*3+inIntron),
-#          (regions*4-inIntron):(regions*4+inExon))
 
 print.logo = function(){
   # cat(  "                                                                              \n")
@@ -98,7 +81,7 @@ fisher.region <- function(exon, myHitsData) {
 
   outP = lapply_pb(myHitsData,get_fisher, exon=exon)
 
-  for (tIdx in 1:numTet) {#     dd<-myHitsData[[tIdx]]
+  for (tIdx in 1:numTet) {
     pMatrix[tIdx,] <- outP[[tIdx]]
   }
   pAdjMatrix <- matrix(ncol=6, nrow=numTet)
@@ -117,7 +100,7 @@ fisher.region.boot <- function(exon, myHitsData) {
   cat("=")
   outP = lapply(myHitsData,get_fisher, exon=exon)
 
-  for (tIdx in 1:numTet) {#     dd<-myHitsData[[tIdx]]
+  for (tIdx in 1:numTet) {
     pMatrix[tIdx,] <- outP[[tIdx]]
   }
   pAdjMatrix <- matrix(ncol=6, nrow=numTet)
@@ -153,17 +136,13 @@ getNApos = function( pos ){
 # ------------------
 
 getTables = function(protein,place,tets, inExon    = 50, inIntron  = 200){
-  # print(place)
   res = list()
   filelist = read.delim(paste(protein,place,"filelist.txt",sep="",coll=""),header=F,stringsAsFactors=F)[,1]
   overlap  = pmatch(tets,filelist)
   if (any(!is.na(overlap))) {  
-#if(!(length(overlap)==1 & is.na(overlap)) & !all(is.na(overlap)) ){
     filelist = filelist[na.omit(overlap)]
     sel.tets = tets[which(!is.na(overlap))]
     regions   = 2000
-    # inExon    = 50
-    # inIntron  = 200
     
     rown = c((regions*1-inExon):(regions*1+inIntron),
              (regions*2-inIntron):(regions*2+inExon),
@@ -184,10 +163,7 @@ getTables = function(protein,place,tets, inExon    = 50, inIntron  = 200){
           chosen = subset(df, cat==(-1)); rownames(chosen) = as.character(chosen$pos);res[["sil"]][match(chosen$pos, rown)[which(!is.na(match(chosen$pos, rown)))],tet] = chosen[which(chosen$pos %in% rown),"no"]
           chosen = subset(df, cat==0); rownames(chosen) = as.character(chosen$pos);	res[["cont"]][match(chosen$pos, rown)[which(!is.na(match(chosen$pos, rown)))],tet]  = chosen[which(chosen$pos %in% rown),"no"]
         }
-        ###
-        #for(i in 1:3) res[[i]][which(is.na(res[[i]]))]=0
       }
-
     }
   }
   res
@@ -292,9 +268,8 @@ SortingAndType = function(score,nn){
 # ------------
 
 panel.rnaplot <-function(x, y, ...,ry=29,rc="red", intensity=1){
-  colorFun = colorRampPalette(c('blue4','blue1',"yellow","red1",'red4'))  # cols<-colorFun(101)[ cut(intensity,breaks=101,label=FALSE) ]
+  colorFun = colorRampPalette(c('blue4','blue1',"yellow","red1",'red4'))
   cols<-colorFun(101)[ findInterval(intensity,seq(0,max(intensity,na.rm=T),by=max(intensity,na.rm=T)/100)) ]
-  # for(i in 1:length(y)) panel.polygon(c(x[i],x[i]),c(0,y[i]),border=cols[i], lwd = 0.2)
   for(i in 1:length(y)) panel.polygon(c(x[i],x[i]),c(0,y[i]),border=cols[i], cex = 0.5)
   panel.rect(-30,0,-10,ry,col=rc)
 }
@@ -375,7 +350,6 @@ rnaScoreMap=function(data,rcol, ylabels=c("0.5","1"),main="",exon=50,intron=200,
                                       args = list(key = list( col = colorFun(100),
                                                               at=0:100,
                                                               tick.number=3,
-                                                              #labels=list(labels=c("100% S","50% E,S","100% E")),#,cex=0.5),
                                                               raster = T,
                                                               width=1,height=0.5,
                                                               space="left"),
@@ -492,8 +466,6 @@ draw_RNAmaps = function(ires, P.EMP,P.FISH, config_file, res_path, RNAmaps_out,h
   fbed = lapply(fbed, function(x,y){colnames(x)=y; return(x)}, y= c("pos","cat","no"))
   fbed = mapply(function(x,y) {x$tet=y; return(x)}, fbed, names(fbed), SIMPLIFY = F)
 
-  # counts = mapply(function(x,y) {x$tet=y; return(x)}, counts, names(counts), SIMPLIFY = F)
-
   tet.fisher = function(a,b,c,d){
     unlist(mapply(
       function(x,y,w,z)  fisher.test(matrix( data=c(x, w-x, y,z-y ), nrow=2, byrow=T))$p.value,
@@ -523,7 +495,7 @@ draw_RNAmaps = function(ires, P.EMP,P.FISH, config_file, res_path, RNAmaps_out,h
     for(i in 1:3) ll[[i]][which(is.na(ll[[i]]))]=0
     for(i in 1:3) names(ll[[i]]) = rown
 
-    # calulate fisher at single positions
+    # calculate fisher at single positions
     p.ena = cbind(p.ena,tet.fisher(ll[["enh"]],ll[["cont"]],CEone,CEzero))
     p.sil = cbind(p.sil,tet.fisher(ll[["sil"]],ll[["cont"]],CEminone,CEzero))
   }
@@ -547,9 +519,6 @@ draw_RNAmaps = function(ires, P.EMP,P.FISH, config_file, res_path, RNAmaps_out,h
 
   df_ord = do.call(cbind, st)
   smf$cluster_id = as.numeric(df_ord[match(smf$tet,df_ord[,1]),2])
-  # print("Calculating positional enrichment ...")
-  #
-  # write.xlsx(smf, file="RNAmotifs/PTEN.human.RNAmotifs.xlsx", "Sig Tets", append=T, row.names = F)
 
   # plot RNA MAPS
   print("Plotting RNA maps...\n")

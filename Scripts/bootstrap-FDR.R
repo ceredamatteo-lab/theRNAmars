@@ -73,15 +73,7 @@ if (numTet > 0) {
 	stopifnot(all(matrix(pFisherV, nrow=numTet) == pFisher))
 
 	# bootstrap
-
 	cat("Bootstrapping results....\n")
-
-	# cl = makeCluster(no_cores)
-
-	# tmp = clusterEvalQ(cl, library(bootstrap))
- 
- #    bootRes = parLapply(cl, 
- #    	)
 
 	ptm <- proc.time()
 

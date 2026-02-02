@@ -4,13 +4,6 @@
 
 args = commandArgs(TRUE)
 
-# wd = '/scratchnet/cgb/RNAmars_tests/RNAmotifs_devel/results/HepG2.withUCSC_HNRNPC_wb_hw_5_ew_200'
-# pr = 'HepG2.withUCSC_HNRNPC_wb_hw_5_ew_200'
-# pp = paste0(pr,"/")
-# bootstrapN = 10000
-# cFisher = 0.1 
-# cEmp    = 0.0005
-
 wd = args[1] 
 pr = args[2]
 pp = paste0(pr,"/")
@@ -28,15 +21,6 @@ cEmp    = as.numeric(args[5])
 inExon    = as.numeric(args[6])
 inIntron  = as.numeric(args[7])
 
-###
-# setwd("/home/cristina/Desktop/Alberto/RNAmotifs_devel/R/")
-# wd = "/home/cristina/Desktop/Alberto/RNAmotifs_devel/results"
-# pr = "FOXA1_fixed_regulated_against_constitutive_enr_wd_200"
-# pp = paste0(pr,"/")
-# bootstrapN = 10000
-# cFisher = 0.1
-# cEmp = 0.0005
-
 ## CONFIGURATION
 # ------------------
 source("conf/config_RNAmotifs.R")
@@ -49,8 +33,6 @@ ff = c("fisher-redundant-RSYW-percent-","fisher-not-redundant-percent-")
 
 
 regions   = 2000
-# inExon    = 50
-# inIntron  = 200
 
 rown = c((regions*1-inExon):(regions*1+inIntron),
          (regions*2-inIntron):(regions*2+inExon),
@@ -63,9 +45,9 @@ rown = c((regions*1-inExon):(regions*1+inIntron),
 suppressWarnings(library(lattice))
 suppressWarnings(library(latticeExtra))
 suppressWarnings(library(bootstrap))
-suppressWarnings(library(plyr))
-suppressWarnings(library(dplyr))
-suppressWarnings(library(tidyr))
+suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
 
 print.logo()
 
@@ -120,20 +102,11 @@ sig2 = sig
 for(gr_ind in names(groups)){
   sig = subset(sig2,tetramer %in% groups[[gr_ind]])
   
-  
-  ###
-  #sig <- subset(sig,(tetramer %in% c("WCCY","WCAS","SCTY","YCTY","YGCY","YTCY","TTTC","YTTS")))
-  # x = grep("S",aa[,1]); if(length(x)>0) aa = aa[-x,]
-  # x = grep("W",aa[,1]); if(length(x)>0) aa = aa[-x,]
-  
-  # sig  = subset(aa, r1enh_pEmp<=cEmp | r2enh_pEmp<=cEmp | r3enh_pEmp<=cEmp | r1sil_pEmp<=cEmp | r2sil_pEmp<=cEmp | r3sil_pEmp<=cEmp )
-  
+   
   if(nrow(sig)>0){
     cat("\nSignificantly enriched motifs:\t",nrow(sig),"\n")
     
     sig[,1]   = as.character(sig[,1])
-    
-    #load(df_enriched_tetramers)
     
     tets = unique(sig[,1])
     
@@ -144,7 +117,7 @@ for(gr_ind in names(groups)){
     CEone    = et["1"]
     CEminone = et["-1"]
     CEzero   = et["0"]
-    # calulate fisher at single positions
+    # calculate fisher at single positions
     cat("\nCalculating fisher's test at single positions...\n")
     
     id_redundant = grep("W|S|Y|R", tets)
@@ -166,9 +139,7 @@ for(gr_ind in names(groups)){
     p.ena = p.sil = cbind()
     p.ena = cbind(p.ena, lmb.cluster.fisher.test(ll[["enh"]],max(c(CEone,max(ll[["enh"]]))),ll[["cont"]],max(c(CEzero,max(ll[["cont"]])))))
     p.sil = cbind(p.sil,lmb.cluster.fisher.test(ll[["sil"]],max(c(CEminone,max(ll[["sil"]]))),ll[["cont"]],max(c(CEzero,max(ll[["cont"]])))))
-    #p.ena = cbind(p.ena,lmb.cluster.fisher.test(ll[["enh"]],CEone,ll[["cont"]],CEzero))
-    #p.sil = cbind(p.sil,lmb.cluster.fisher.test(ll[["sil"]],CEminone,ll[["cont"]],CEzero))
-    
+        
     tets = paste0("Group_",gr_ind); colnames(p.ena) = paste0("Group_",gr_ind); colnames(p.sil) = paste0("Group_",gr_ind)
     
     #------------------------------------------------------
@@ -179,11 +150,7 @@ for(gr_ind in names(groups)){
     
     ES = matrix(0,nc=length(tets),nr=nrow(p.ena), dimnames=list(rownames(p.ena),tets))
     
-    for( i in tets )	 ES[,i] = (-2)*( log(p.ena[,i])+log( p.sil[,i] ) )
-    
-    # e =
-    # s = (-2)*log(p.sil)
-    
+    for( i in tets )	 ES[,i] = (-2)*( log(p.ena[,i])+log( p.sil[,i] ) ) 
     
     #----------------------------------
     # sort and cluster tetramers on ES
@@ -193,16 +160,8 @@ for(gr_ind in names(groups)){
     auc  = apply(ES,2,sum)
     tets = names(sort(auc,dec=T))
     
-    # ks = matrix(0, nc=length(tets), nr=length(tets), dimnames=list(tets,tets))
-    # for(i in tets) for(j in tets) ks[i,j] = ks.test(ES[,i],ES[,j])$p.value
-    # ks[which(row(ks)+col(ks)>length(tets))] = NA
-    # heatmap(ks)
-    
     score.sort =  (-2)*log(p.ena) - (-2)*log(p.sil)
-    
-    # x = melt(score.sort, id.var=colnames(score.sort))
-    # 	ggplot(x, aes(x=Var1,y=value, fill=as.numeric(value>0)+1))+geom_area()+scale_fill_manual(values=c("blue",'red'))+facet_grid(~Var2)+theme_bw()
-    
+        
     st   = SortingAndType(score.sort,tets)
     if(length(tets)==1) st = list(tets,1)
     ord  = st[[1]]
@@ -214,7 +173,7 @@ for(gr_ind in names(groups)){
     #--------------------------------
     cat("Plotting RNA maps...\n")
     
-    library(reshape2)
+    suppressWarnings(library(reshape2))
     
     e = (-2)*log(p.ena)
     s = (-2)*log(p.sil)
@@ -245,27 +204,14 @@ for(gr_ind in names(groups)){
     prn = rnaScoreMap(datar,rcol,ylabels=c("",as.character(floor(ms))), exon = inExon, intron = inIntron)
     prn = update(prn,lwd=0.8)
     
-    pdf(file=paste(pp,ifelse(gr_ind=="both","All",ifelse(gr_ind=="sil","Sil","Enh")),"_",length(unique(sig$tetramer)),"_",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".pdf",sep="",collapse=""),
+    suppressWarnings({pdf(file=paste(pp,ifelse(gr_ind=="both","All",ifelse(gr_ind=="sil","Sil","Enh")),"_",length(unique(sig$tetramer)),"_",format(Sys.time(),"%Y%m%d_%H_%M"),"-tets-",pr,"-emp-",cEmp,"-fisher-",cFisher,"-nBoot-",bootstrapN,".pdf",sep="",collapse=""),
         height=10, width = 10)
     print(prn,panel.height=list(0.4,"cm"),panel.width=list(20,"cm"))
     dev.off()
+   })
     
   }else{
     print("NO significant tetramers")
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

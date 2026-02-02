@@ -47,14 +47,12 @@ cat("====================================================",
     "\nInput exons file      = ", READY_RNAMOTIFS_INPUT,
     "\nRNAmotifs results     = ", DIR_RESULTS_RNAMOTIFS,
     "\nRNAMaRs folder        = ", repo,
-    "\nCell line             = ", cell_line,
+    "\nReference cell line   = ", cell_line,
     "\nCPUs                  = ", cpus,
     "\nRNAMaRs results       = ", DIR_OUTPUT,
     "\neCLIP peaks path      = ", ECLIP_PEAKS_PATH,
     "\n=================================================="
     )
-
-message(noquote(paste0("\n[*] Running RNAMaRs using ", cell_line, " as reference")))
 
 # TRAINING RBPS DEFINITION ================
 if (cell_line == "HepG2"){
@@ -93,7 +91,9 @@ AUC_enh = vector("list", nrow(sel_par_sets))
 names(AUC_sil) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 names(AUC_enh) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 
-message(noquote(paste0("\n\n[*] STEP 1: Extracting AUC-based Signal Recovery rate for ", cell_line, " cell line")))
+message(noquote("\n\n================================="))
+message(noquote(paste0("[*] STEP 1: Extracting AUC-based Signal Recovery rate for ", cell_line, " cell line")))
+message(noquote("================================="))
 for ( y in 1:nrow(sel_par_sets)) {
   params = sel_par_sets[y,]
   hw = params$hw
@@ -122,19 +122,19 @@ for ( y in 1:nrow(sel_par_sets)) {
   AUC_sil[[index]] = matrix( rep( AUC_vec[paste0(rbps_opt_params,'_sil')], length(sil_tets)), nrow = length(rbps_opt_params), dimnames = list(rbps_opt_params, sil_tets))
 }
 
-message(noquote("\n[*] Saving signal recovery rate files (enhanced and silenced separately)"))
+message(noquote("\n[*] Saving signal recovery rate files (enhanced and silenced separately) ..."))
 saveRDS(AUC_enh, paste0(DIR_OUTPUT, "SCORE1_enh_signal_recovery_rate_", name, ".rds"))
 saveRDS(AUC_sil, paste0(DIR_OUTPUT, "SCORE1_sil_signal_recovery_rate_", name, ".rds"))
 
-message(noquote("\n ================================================"))
 
 # 2. Binding scores from RNAmotifs results ===================
 SIM_SIL = vector("list", nrow(sel_par_sets))
 SIM_ENH = vector("list", nrow(sel_par_sets))
 names(SIM_SIL) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 names(SIM_ENH) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
-
+message(noquote("\n\n================================="))
 message(noquote("\n[*] STEP 2: Computing cosine similarity between RBP binding profile and tetramer enrichment score"))
+message(noquote("================================="))
 res = data.frame()
 for (y in 1:nrow(sel_par_sets)) {
   params       = sel_par_sets[y, ]
@@ -178,15 +178,14 @@ for (y in 1:nrow(sel_par_sets)) {
   RNAmaps_enhanced       = read.csv(paste0(path_folder,"/",ff_enhanced))
   
   # Input RNAmotifs (exons)
-  message(noquote('[*] Importing RNAmotifs input'))
   datExpr    <<- read.table(READY_RNAMOTIFS_INPUT, header = F, sep = ";")
 
   # Extract binding profile of all the trained proteins RBPs, restricting eCLIP to input exons containing enriched tetramer
   sim_sil_tmp = matrix(NA, nrow = length(rbps), ncol = length(sil_tets), dimnames = list(rbps, sil_tets))
   sim_enh_tmp = matrix(NA, nrow = length(rbps), ncol = length(enh_tets), dimnames = list(rbps, enh_tets))
   
-    rbps_opt_params = opt_params$pr[opt_params$hw == hw & opt_params$ew == ew]
-  message(noquote(paste0("\n[*] RBPs ", paste(rbps_opt_params, collapse = ", ")," have the combination hw=", hw," ew=", ew, " as optimal parameters")))
+  rbps_opt_params = opt_params$pr[opt_params$hw == hw & opt_params$ew == ew]
+  message(noquote(paste0("[*] RBPs ", paste(rbps_opt_params, collapse = ", ")," have the combination hw=", hw," ew=", ew, " as optimal parameters")))
   
   sim_sil_tmp = matrix(NA, nrow = length(rbps_opt_params), ncol = length(sil_tets), dimnames = list(rbps_opt_params, sil_tets))
   sim_enh_tmp = matrix(NA, nrow = length(rbps_opt_params), ncol = length(enh_tets), dimnames = list(rbps_opt_params, enh_tets))
@@ -202,7 +201,7 @@ for (y in 1:nrow(sel_par_sets)) {
     ## ________________________________________________________________
     ## > Similarity in ENHANCED profiles restricted to tetramer tetr -----
     if (length(enh_tets)>=1) {
-      message(noquote("[*] Computing cosine similarity in enhanced profiles"))
+      message(noquote("[*] Computing cosine similarity in enhanced profiles..."))
       similarity_enh = sapply(enh_tets, function(tetr) {
         ind         = which(subset(regions, X==tetr)[,2:4]!=0)
         # index of input exons that have enrichment in R1 or R2 or R3
@@ -236,7 +235,7 @@ for (y in 1:nrow(sel_par_sets)) {
     ## __________________________________________________________________
     ## > Similarity in SILENCED profiles restricted to tetramer tetr -----
     if (length(sil_tets)>=1) {
-      message(noquote("[*] Computing cosine similarity in silenced profiles"))
+      message(noquote("[*] Computing cosine similarity in silenced profiles..."))
       similarity_sil = sapply(sil_tets, function(tetr) {
         ind         = which(subset(regions, X==tetr)[,2:4]!=0)
         # index of input exons that have enrichment in R1 or R2 or R3
@@ -272,9 +271,9 @@ for (y in 1:nrow(sel_par_sets)) {
   }
   SIM_SIL[[index]] = sim_sil_tmp
   SIM_ENH[[index]] = sim_enh_tmp
-  message(noquote("\n ================================================"))
+  message(noquote("\n ==============================="))
 }
 
-message(noquote("\n\n[*] Saving cosine similarities (enhanced and silenced separately)"))
+message(noquote("\n\n[*] Saving cosine similarities (enhanced and silenced separately) ..."))
 saveRDS(SIM_SIL, paste0(DIR_OUTPUT, "SCORE2_sil_profile_similarity_", name, ".rds"))
 saveRDS(SIM_ENH, paste0(DIR_OUTPUT, "SCORE2_enh_profile_similarity_", name, ".rds"))
