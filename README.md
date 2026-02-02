@@ -137,7 +137,7 @@ From left to right, the plot reports:
 ## Contributors
 RNAMaRs has been designed by Dr. Matteo Cereda and Uberto Pozzoli and developed with Tommaso Becchi, Gabriele Boscagli, Mariachiara Grieco and Francesca Priante.
 
-Main developer: Tommaso Becchi, Gabriele Boscagli and Mariachiara Grieco.
+Main developers: Tommaso Becchi, Gabriele Boscagli and Mariachiara Grieco.
 
 Contributing developers: Francesca Priante.
 
