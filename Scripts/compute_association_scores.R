@@ -1,4 +1,4 @@
-##i ___________________________
+## ___________________________
 ## Script name: compute_association_scores.R
 ## Purpose of script: Given the RNAmotifs output, compute the association score of enriched tetramers and trained RBPs, compared to either HepG2 or K562 cell line
 ## ___________________________
