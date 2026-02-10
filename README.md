@@ -67,7 +67,7 @@ This is an example of how the input file should look like:
 RNAMaRs runs from command-line with `RNAMaRs.sh`. At first, the script runs RNAmotifs internally; then, the RNAMaRs module computes and plots the association score (AS) between RNAmotifs-based enriched tetramers and RBP binding evidence previously computed.
 
 ```
-./RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DESEQ_FILE $DIR_ECLIP $CPUS
+./RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DIR_ECLIP $CPUS $DESEQ_FILE
 ```
 
 `RNAMaRs.sh` requires the following command-line parameters:
@@ -78,9 +78,9 @@ NAME | Name of the folder used to save RNAmotifs and RNAMaRs results | "HNRNPK_s
 DIR_RNAMARS | Path to RNAMaRs tool | "path/to/local/theRNAmars/"
 INPUT_EXONS_FILE | Text file containing alternative and constitutive exons (organized as described in `Input` section) | "HNRNPK_silencing_72h_input_rnamotifs.txt"
 CELL_LINE | Cell line to use as reference (it must be: `HepG2` or `K562`) | "HepG2"
-DESEQ_FILE | Path to differential gene expression table (optional). File can be both in `.tsv` or `.rds` format. If not available, just leave `""` | "DESeq2_HNRNPK_silencing_72h_DEG.csv"
 DIR_ECLIP | Path to processed iCount peaks. This must contain `HepG2` and `K562` subdirectories | "DIR_RNAMARS/Sources/eCLIP/"
 CPUS | How many CPUs to use | 14
+DESEQ_FILE | Path to differential gene expression table (optional). File can be both in `.tsv` or `.rds` format. If not available, just leave the parameter empty | "HNRNPK_silencing_72h_DESEQ2.tsv"
 
 Additionally, user could run RNAmotifs and RNAMaRs separately using `01_RNAmotifs.sh` and `02_RNAmars.sh` from command-line as follows:
 
@@ -89,7 +89,7 @@ Additionally, user could run RNAmotifs and RNAMaRs separately using `01_RNAmotif
 ```
 
 ```
-./02_RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DESEQ_FILE $DIR_ECLIP $CPUS
+./02_RNAMaRs.sh $NAME $DIR_RNAMARS $INPUT_EXONS_FILE $CELL_LINE $DIR_ECLIP $CPUS $DESEQ_FILE
 ```
 
 Bear in mind that RNAMaRs module will not work if RNAmotifs has not been previously run.
