@@ -86,8 +86,8 @@ pos_adj               = c(r + (1:l),
 
 # 1. Recovery rate score ===========
 AUC_vec  = readRDS(paste0(repo,'/Rdata/', cell_line, "_AUC_based_metric_downsampling.rds"))
-AUC_sil = vector("list", nrow(sel_par_sets))
-AUC_enh = vector("list", nrow(sel_par_sets))
+AUC_sil  = vector("list", nrow(sel_par_sets))
+AUC_enh  = vector("list", nrow(sel_par_sets))
 names(AUC_sil) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 names(AUC_enh) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 
@@ -133,19 +133,19 @@ SIM_ENH = vector("list", nrow(sel_par_sets))
 names(SIM_SIL) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 names(SIM_ENH) = paste0('hw_',sel_par_sets$hw, '_ew_', sel_par_sets$ew)
 message(noquote("\n\n================================="))
-message(noquote("\n[*] STEP 2: Computing cosine similarity between RBP binding profile and tetramer enrichment score"))
+message(noquote("[*] STEP 2: Computing cosine similarity between RBP binding profile and tetramer enrichment score"))
 message(noquote("================================="))
 res = data.frame()
 for (y in 1:nrow(sel_par_sets)) {
   params       = sel_par_sets[y, ]
   hw = params$hw
   ew = params$ew
-  index =  paste0('hw_',params[[1]], '_ew_', params[[2]])
+  index =  paste0('hw_',hw, '_ew_', ew)
   message(noquote(paste0("\n[*] Analyzing optimal parameters combination hw: ", hw, " and ew: ", ew)))
     
-  summary_file = paste0(DIR_OUTPUT, "summary_results_", name, "_hw_", params[1], "_ew_", params[2], ".rds")
+  summary_file = paste0(DIR_OUTPUT, "summary_results_", name, "_hw_", hw, "_ew_", ew, ".rds")
 
-  folder_name   = paste0(name, "_hw_", params[1], "_ew_", params[2])
+  folder_name   = paste0(name, "_hw_", hw, "_ew_", ew)
   path_folder   = file.path(DIR_RESULTS_RNAMOTIFS, folder_name)
   file_enr_tet  = file.path(path_folder, "enriched_tetramers.txt")
 
@@ -181,9 +181,6 @@ for (y in 1:nrow(sel_par_sets)) {
   datExpr    <<- read.table(READY_RNAMOTIFS_INPUT, header = F, sep = ";")
 
   # Extract binding profile of all the trained proteins RBPs, restricting eCLIP to input exons containing enriched tetramer
-  sim_sil_tmp = matrix(NA, nrow = length(rbps), ncol = length(sil_tets), dimnames = list(rbps, sil_tets))
-  sim_enh_tmp = matrix(NA, nrow = length(rbps), ncol = length(enh_tets), dimnames = list(rbps, enh_tets))
-  
   rbps_opt_params = opt_params$pr[opt_params$hw == hw & opt_params$ew == ew]
   message(noquote(paste0("[*] RBPs ", paste(rbps_opt_params, collapse = ", ")," have the combination hw=", hw," ew=", ew, " as optimal parameters")))
   
@@ -230,7 +227,7 @@ for (y in 1:nrow(sel_par_sets)) {
         return(res)
       })
       sim_enh_tmp[pr, names(similarity_enh)] = unname(similarity_enh)
-    } else {sim_enh_tmp = matrix(NA, nrow = length(rbps), ncol = 0, dimnames = list(rbps))}
+    } else {sim_enh_tmp = matrix(NA, nrow = length(rbps_opt_params), ncol = 0, dimnames = list(rbps_opt_params))}
 
     ## __________________________________________________________________
     ## > Similarity in SILENCED profiles restricted to tetramer tetr -----
@@ -265,7 +262,7 @@ for (y in 1:nrow(sel_par_sets)) {
         return(res)
       })
       sim_sil_tmp[pr, names(similarity_sil)] = unname(similarity_sil)
-    } else {sim_sil_tmp = matrix(NA, nrow = length(rbps), ncol = 0, dimnames = list(rbps))}
+    } else {sim_sil_tmp = matrix(NA, nrow = length(rbps_opt_params), ncol = 0, dimnames = list(rbps_opt_params))}
    
 
   }

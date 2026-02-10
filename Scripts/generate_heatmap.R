@@ -41,6 +41,10 @@ DIR_OUTPUT            = opt$output
 # deseq_file = '' # either '' or the tsv with these columns:
 ## baseMean	log2FoldChange	lfcSE	stat	pvalue	padj
 
+if (is.na(deseq_file) || deseq_file == "NA") {
+  deseq_file <- ""
+}
+
 # Set up =========================================================
 setwd(repo)
 source('Scripts/conf/config_RNAmars.R')
@@ -55,7 +59,7 @@ if (cell_line_target == "HepG2"){
 
 
 ## Optimal set of params
-OPT <- read.csv(file.path(repo, "Tables/RNAmotifs_optimal_parameters.csv"), stringsAsFactors = FALSE)
+OPT    = read.csv(file.path(repo, "Tables/RNAmotifs_optimal_parameters.csv"), stringsAsFactors = FALSE)
 PARAMS = subset(OPT, true_rbp %in% rbps)
 colnames(PARAMS)[colnames(PARAMS)=='true_rbp']<- 'pr'
 
@@ -94,8 +98,8 @@ all_splicingMaps = do.call(rbind,lapply(unique(OPT$params), function(y){
   return(suppressWarnings(cbind(pr         = name,
                                 hw         = params[1],
                                 ew         = params[2],
-                                rbp = name,
-                                pos = 1:length(SIL_spl_map),
+                                rbp        = name,
+                                pos        = 1:length(SIL_spl_map),
                                 height_enh = ENH_spl_map, 
                                 height_sil = SIL_spl_map, 
                                 height     = ES_spl_map,
@@ -103,8 +107,8 @@ all_splicingMaps = do.call(rbind,lapply(unique(OPT$params), function(y){
 }))
 
 
-all_splicingMaps = as.data.frame(all_splicingMaps)
-all_splicingMaps$pos = as.numeric(all_splicingMaps$pos)
+all_splicingMaps            = as.data.frame(all_splicingMaps)
+all_splicingMaps$pos        = as.numeric(all_splicingMaps$pos)
 all_splicingMaps$height_enh = as.numeric(all_splicingMaps$height_enh)
 all_splicingMaps$height_sil = as.numeric(all_splicingMaps$height_sil)
 
@@ -113,23 +117,22 @@ message(noquote("[*] RNAmotifs splicing maps created and ready for final heatmap
 # DEseq2 ===============================
 message(noquote("\n[*] Importing DESeq2 differential genes..."))
 if (file.exists(deseq_file) & deseq_file %like% '.tsv') {
-  deseq = read.delim(deseq_file)
+  deseq     = read.delim(deseq_file)
   sub_deseq = subset(deseq, gene_name %in% rbps)
 } else if (file.exists(deseq_file) & deseq_file %like% '.rds') {
-  deseq = as.data.frame(readRDS(deseq_file))
+  deseq     = as.data.frame(readRDS(deseq_file))
   sub_deseq = subset(deseq, gene_name %in% rbps)
 } else {
   # baseMean	log2FoldChange	lfcSE	stat	pvalue	padj
-  message(noquote("[*] DESeq2 file not specified!"))
   sub_deseq = data.frame(log2FoldChange = rep(0, length(rbps)), padj =  rep(1, length(rbps)), gene_name =rbps)
 }
 
 
 
 # Import scores ===================
-srr_sil = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE1_sil') ))
+srr_sil         = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE1_sil') ))
 profile_sim_sil = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE2_sil') ))
-srr_enh = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE1_enh') ))
+srr_enh         = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE1_enh') ))
 profile_sim_enh = readRDS( paste0(DIR_OUTPUT, list.files(DIR_OUTPUT, pattern = 'SCORE2_enh') ))
 
 ENH = lapply(names(profile_sim_enh), function(params) {
@@ -140,7 +143,7 @@ ENH = lapply(names(profile_sim_enh), function(params) {
 })
 names(ENH) = names(profile_sim_enh)
 ENH = list(ENH)
-names(ENH)<-name
+names(ENH) = name
 
 
 SIL = lapply(names(profile_sim_sil), function(params) {
@@ -151,7 +154,7 @@ SIL = lapply(names(profile_sim_sil), function(params) {
 })
 names(SIL) = names(profile_sim_sil)
 SIL = list(SIL)
-names(SIL)<-name
+names(SIL) = name
 
 
 
@@ -181,19 +184,19 @@ for ( typeAS in c('enh','sil')) {
   }
     
   if (dim(sub_res_df)[1]!=0) {
-    res<-plot_association_heatmap(MAT = MAT, 
-                                  PARAMS = PARAMS,
-                                  PEAK = PEAK,
-                                  sub_res_df = sub_res_df,
-                                  typeAS = typeAS,
-                                  input_name = name,
-                                  ranking_method = "rowmean",
-                                  sub_deseq = sub_deseq
+    res = plot_association_heatmap(MAT            = MAT, 
+                                   PARAMS         = PARAMS,
+                                   PEAK           = PEAK,
+                                   sub_res_df     = sub_res_df,
+                                   typeAS         = typeAS,
+                                   input_name     = name,
+                                   ranking_method = "rowmean",
+                                   sub_deseq      = sub_deseq
     )
-    p = res[[1]]
-    mat = res[[2]]
-    ranking = res[[3]]
-    tet_score = res[[4]]
+    p           = res[[1]]
+    mat         = res[[2]]
+    ranking     = res[[3]]
+    tet_score   = res[[4]]
     pval_legend = res[[5]]
     
     message(noquote("\n[*] Saving heatmap as rds file..."))

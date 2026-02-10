@@ -2,9 +2,9 @@ NAME=$1
 DIR_RNAMARS=$2
 INPUT_EXONS_FILE=$3
 CELL_LINE=$4
-DESEQ_FILE=$5
-DIR_ECLIP=$6
-CPUS=$7
+DIR_ECLIP=$5
+CPUS=$6
+DESEQ_FILE=${7:-NA}
 RNAMARS_RESULTS=${DIR_RNAMARS}/results/RNAmars/${NAME}_on_${CELL_LINE}/
 
 
@@ -36,7 +36,7 @@ Rscript --vanilla ${DIR_RNAMARS}/Scripts/generate_heatmap.R --input ${INPUT_EXON
   --RNAmotifs_res ${DIR_RNAMARS}/results/RNAmotifs/ \
   --repository ${DIR_RNAMARS}/ \
   --cell_line ${CELL_LINE} \
-  --deseq_file ${DESEQ_FILE} \
+  --deseq_file "${DESEQ_FILE}" \
   --cores ${CPUS} \
   --output ${RNAMARS_RESULTS}
 

@@ -102,7 +102,6 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   # - sub_deseq = deseq results from same RNAseq data that produced the list of input alternative exons.
   #               It must be in the DESeq2 format and contain the column `deg` (TRUE/FALSE), otherwise these thresholds will be used: abs(log2FC) ≥ 0.1 and padj < 0.1
   
-
   all_tets = unique(sub_res_df$tetramer)
   length(all_tets)
   params_to_use = unique(PARAMS$params)
@@ -128,10 +127,6 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
     }
   }
   
-  # Some tetramers have NAs associations
-  # not_nas = names(which(!colSums(is.na(final_mat))==nrow(final_mat)))
-  # final_mat = final_mat[,not_nas]
-  
   # Column annotation: tetramer scores region-wise
   if(nrow(sub_res_df)>1){
     tetr_pval_r1     = tapply(1:nrow(sub_res_df),sub_res_df$tetramer, function(x){sum(-2*log(sub_res_df[x, paste0("r1",typeAS,"_pFis")] )) }) 
@@ -152,16 +147,25 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   ## GENE EXPRESSION ANNOTATION
   padj_thres = 0.1
   fc_thresh = 0.1
+  
+  # is there a user-provided DESeq file?
+  deseq = !(all(sub_deseq$log2FoldChange == 0, na.rm = TRUE) && all(sub_deseq$padj == 1 | is.na(sub_deseq$padj)))
 
-  if('deg' %in% colnames(sub_deseq)  ){
+  if (deseq && 'deg' %in% colnames(sub_deseq)){
     fc = sub_deseq[,c('gene_name', 'log2FoldChange','padj', 'deg')]
-  } else{
+    rownames(fc) = fc$gene_name
+  } else if (deseq && !('deg' %in% colnames(sub_deseq))){
     message('[*] DESeq2 table does not contain `deg` column, abs(log2FC) ≥ ', fc_thresh, ' and padj ≤ ', padj_thres,' will be annotated as deg')
     fc = sub_deseq[,c('gene_name', 'log2FoldChange','padj')]
     fc$deg = ifelse(abs(fc$log2FoldChange) >= fc_thresh & fc$padj <= padj_thres, TRUE, FALSE)
+    rownames(fc) = fc$gene_name
+  } else {
+    message('[*] DESeq2 table not provided!')
+    fc = sub_deseq[,c('gene_name', 'log2FoldChange','padj')]
+    rownames(fc) = fc$gene_name
   }
-
-  rownames(fc)<-fc$gene_name
+  
+  if (deseq){
   sign_fc = sign(fc$log2FoldChange)
 
   shape_fc = case_when(
@@ -187,7 +191,8 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   padj_score = ifelse(fc$padj<=padj_thres & !is.na(fc$padj), -log10(fc$padj), 1)
   names(padj_score) = fc$gene_name
   padj_score[!is.finite(padj_score)] = max(padj_score[is.finite(padj_score)])+1 
-  
+  }
+
   # COLUMN ORDER
   colorder = names(all_tet_scores)
   final_mat = final_mat[,colorder, drop = F]
@@ -204,7 +209,6 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   
   # To count as weight the tetramer score
   tet_score_mat = matrix(rep(all_tet_scores, nrow(final_mat)), byrow = T, nrow =  nrow(final_mat))
-  # colnames(tet_score_mat)<- not_nas
   colnames(tet_score_mat)<- all_tet_scores
   rownames(tet_score_mat)<- rbps
   
@@ -214,56 +218,10 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   
   color_barplot_tet_score = rep('darkcyan', length(all_tet_scores))
   
-  if (ranking_method =='rowmean' | (ranking_method =='jenks' &  length(all_tet_scores)<=30)) {
+  if (ranking_method =='rowmean') {
     to_rank_rows_mat = final_mat
     row_rank = sort(rowMeans(to_rank_rows_mat, na.rm=T), decreasing = T)
     motif_score = row_rank
-  } else if (ranking_method =='jenks'){ 
-    dummy_tet = all_tet_scores
-    thresh = getJenksBreaks(dummy_tet, 3, subset = NULL)
-    names(dummy_tet) = colnames(final_mat)
-    selected = names(dummy_tet[dummy_tet>=thresh[2]])
-    
-    row_rank = sort(rowMeans(final_mat[,selected], na.rm=T), decreasing = T)
-    motif_score = row_rank
-    
-    color_barplot_tet_score[(length(selected)+1):length(all_tet_scores)] = 'grey'
-  } else if (ranking_method =='consider_NA') {
-    to_rank_rows_mat = final_mat
-    to_rank_rows_mat[is.na(to_rank_rows_mat)]=0
-    row_rank = sort(rowMeans(to_rank_rows_mat), decreasing = T)
-    motif_score = row_rank
-  } else if (ranking_method =='all_tet_scores') {
-    to_rank_rows_mat = final_mat*tet_score_mat
-    row_rank = sort(rowMeans(to_rank_rows_mat, na.rm=T), decreasing = T)
-    motif_score = row_rank
-  } else if ( ranking_method =='tet_score_in_run') {
-    tet_score_in_run_mat = tet_score_in_run_mat[,colnames(final_mat)]
-    to_rank_rows_mat = final_mat*tet_score_in_run_mat
-    row_rank = sort(rowMeans(to_rank_rows_mat, na.rm=T), decreasing = T)
-    motif_score = row_rank
-  } else if (ranking_method =='rowmean_and_fc') {
-    to_rank_rows_mat = final_mat
-    rowmean = rowMeans(to_rank_rows_mat, na.rm=T)
-    abs_fc = abs(fc$log2FoldChange)
-    names(abs_fc) = fc$gene_name
-    abs_fc = abs_fc[names(rowmean)]
-    row_rank = abs_fc*rowmean
-    row_rank = sort(row_rank, decreasing = T)
-    
-    row_rank = row_rank[!is.na(row_rank)]
-    roworder = names(row_rank)
-    motif_score = rowmean[roworder]
-  } else if (ranking_method == 'rowmean_and_deseq_padj') {
-    to_rank_rows_mat = final_mat
-    rowmean = rowMeans(to_rank_rows_mat, na.rm=T)
-    padj_score = padj_score[names(rowmean)]
-    row_rank = padj_score*rowmean
-    row_rank = sort(row_rank, decreasing = T)
-    
-    row_rank = row_rank[!is.na(row_rank)]
-    roworder = names(row_rank)
-    motif_score = rowmean[roworder]
   } 
 
   ## ROWORDER
@@ -273,11 +231,13 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   final_mat = final_mat[roworder,, drop=F]
   
   # reorder fc
-  fc = fc[roworder, ]
-  shape_fc = shape_fc[roworder]
-  color_fc = color_fc[roworder]
-  padj_score = padj_score[roworder]
-  
+  fc  = fc[roworder, ]
+  if (deseq){
+    shape_fc = shape_fc[roworder]
+    color_fc = color_fc[roworder]
+    padj_score = padj_score[roworder]
+  }
+
   # reorder binding peak
   binding = binding[roworder,, drop =F]
   roi = roi[roworder,, drop =F]
@@ -295,15 +255,7 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
                             cluster_rows = F, cluster_columns = F,
                             height              = unit(8, "mm")*nrow(motif_score_mat),
                             width               = unit(8, "mm")*ncol(motif_score_mat))
-  
-  if(all(fc$log2FoldChange==0)) {
-    points_fc = runif(length(row_rank))
-    points_fc[1]=1
-  } else {
-    points_fc = fc$log2FoldChange
-  }
-  names(points_fc) = fc$gene_name
-  
+    
   anno_pval  = anno_barplot(all_tet_scores,
                             border=F,
                             bar_width = 0.9,
@@ -322,38 +274,40 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
   
   pval_legend = Legend(title = paste0("CRE"), col_fun = pval_col_fun, at = c(0, round(max_r_pval/2,1), round(max_r_pval,1)))
 
- 
-  mat_annot_fc = matrix(abs( points_fc ))
-  rownames(mat_annot_fc) =names(points_fc)
+  if (deseq) {
+  mat_annot_fc = matrix(abs(fc$log2FoldChange))
+  rownames(mat_annot_fc) = rownames(fc)
   far_left_anno = rowAnnotation(`|log2FC|` = anno_points(mat_annot_fc,
                                            pch = shape_fc,
                                            gp = gpar(col = color_fc, fill = color_fc),
-                                           size = unit(ifelse(all(fc$log2FoldChange==0),0,4), "mm"),
+                                           size = unit(4, "mm"),
                                            width = unit(20, "mm"),
-                                           labels = names(points_fc),
                                            border     = F))
-  row_names_annot = rowAnnotation(rn = anno_text(rownames(mat_annot_fc)))
+  } else {
+  far_left_anno = NULL
+  }
   
   h <- Heatmap(final_mat, 
-               col = cols,
-               name = 'AS',
-               cluster_rows = F, cluster_columns = F,
+               col                 = cols,
+               name                = 'AS',
+               cluster_rows        = F, 
+               cluster_columns     = F,
                height              = unit(8, "mm")*nrow(final_mat),
                width               = unit(8, "mm")*ncol(final_mat),
-               top_annotation = top_anno,
+               top_annotation      = top_anno,
                split               = factor(roworder, levels = roworder),
                gap                 = unit(0,"mm"),
-               row_title=NULL,
+               row_title           = NULL,
                show_row_names      = F,
                right_annotation    = rowAnnotation("splicingMaps"       = anno_empty(which="row",width=unit(8,"cm")),
                                                    "empty6"             = anno_empty(which="row",width=unit(10,"mm"), border=F)),
-               left_annotation =  rowAnnotation(`mean(AS)` = anno_barplot( row_rank,  border     = F )),
-               column_title = "",
+               left_annotation     = rowAnnotation(`mean(AS)` = anno_barplot( row_rank,  border     = F )),
+               column_title        = "",
                column_names_side   = "top",
-               row_names_side   = "left",
+               row_names_side      = "left",
                
                cell_fun            = function(j, i, x, y, width, height, fill) {
-                 w          = 2*final_mat[i,j]/max(final_mat, na.rm =T)
+                 w                 = 2*final_mat[i,j]/max(final_mat, na.rm =T)
                  
                  grid.rect(x      = x,
                            y      = y,
@@ -379,7 +333,14 @@ plot_association_heatmap <- function(MAT, PARAMS, PEAK, sub_res_df, typeAS, inpu
                  )
                }
   )
-  return(list( row_names_annot+far_left_anno+left_annot+h, final_mat, row_rank, all_tet_scores, pval_legend))
+  
+  row_names_annot <- rowAnnotation(rn = anno_text(rownames(fc)))
+  if (!is.null(far_left_anno)) {
+    hm = row_names_annot + far_left_anno + left_annot + h
+  } else {
+    hm = row_names_annot + left_annot + h
+  }
+  return(list(hm, final_mat, row_rank, all_tet_scores, pval_legend))
 }
 
 
