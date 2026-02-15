@@ -10,7 +10,7 @@ def read():
     """
     m3_light.db.reset()
     filename = m3_light.config.filename_regions()
-    print "reading regions from:", filename
+    print("reading regions from:", filename)
     f = open(filename, "rt")
     header = f.readline().replace("\r", "").replace("\n", "").split("\t")
     r = f.readline()

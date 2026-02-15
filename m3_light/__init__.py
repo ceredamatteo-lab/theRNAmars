@@ -2,15 +2,15 @@
 Main m3 interface
 """
 
-import config
-import regions
-import search
-import genomes
-import utils
-import db
+from . import config
+from . import regions
+from . import search
+from . import genomes
+from . import utils
+from . import db
 import m3_light
 import os
-import data
+from . import data
 
 def find_tetramers(regions_name, genome, cluster_hw, hmin, perc_th, m=None):
     """
@@ -34,16 +34,16 @@ def find_tetramers(regions_name, genome, cluster_hw, hmin, perc_th, m=None):
         os.remove(m3_light.config.filename_stats())
 
     for index, motif in enumerate(genomes.motifs):
-        print index+1, motif
-        print "\tmotifs.raw"
+        print(index+1, motif)
+        print("\tmotifs.raw")
         m3_light.search.make_bed(motif)
-        print "\tmotifs.final"
+        print("\tmotifs.final")
         search.cluster_threshold(motif)
 
 def fastasplit(filename):
     f = m3_light.data.Fasta(filename)
     while f.read():
-        print f.id
+        print(f.id)
         fout = open("%s.string" % f.id, "wt")
         fout.write(f.sequence)
         fout.close()

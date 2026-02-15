@@ -199,7 +199,7 @@ for ( typeAS in c('enh','sil')) {
     tet_score   = res[[4]]
     pval_legend = res[[5]]
     
-    message(noquote("\n[*] Saving heatmap as rds file..."))
+    message(noquote(paste0("\n[*] Saving heatmap for ", ifelse(typeAS == 'sil', 'silenced', 'enhanced'), " exons as rds file...")))
     saveRDS(mat, paste0(DIR_OUTPUT, '/final_mat_',typeAS,'.rds'))
     saveRDS(tet_score, paste0(DIR_OUTPUT, '/final_mat_tet_score_',typeAS,'.rds'))
     saveRDS(ranking, paste0(DIR_OUTPUT, '/final_mat_prot_score_',typeAS,'.rds'))
@@ -207,8 +207,11 @@ for ( typeAS in c('enh','sil')) {
     if ( all(dim(mat) ==c(1,1))) {
       ht_dim = c(10,10)
     } else {
+      pdf(NULL)
       ht_dim = getdim(draw(p))
+      dev.off()
     }  
+    
     # Save plot
     message(noquote(paste0("[*] Printing heatmap for ", ifelse(typeAS == 'sil', "silenced", "enhanced"), " exons...")))
     figure_final_path = paste0(DIR_OUTPUT, cell_line_target,'_', name, '_', typeAS,'.pdf')

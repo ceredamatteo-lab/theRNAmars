@@ -31,10 +31,12 @@ def all_indices(sequence, sub_sequence, offset=0):
         i = sequence.find(sub_sequence, i + 1)
     return indices
 
-def overlap((start_1, stop_1), (start_2, stop_2)):
+def overlap(xxx_todo_changeme, xxx_todo_changeme1):
     """
     If the two given intervals overlap, return overlapping region else return first interval
     """
+    (start_1, stop_1) = xxx_todo_changeme
+    (start_2, stop_2) = xxx_todo_changeme1
     if start_2>=start_1+1 and start_2<=stop_1+1:
         return ((start_1, stop_2), True)
     else:
@@ -86,7 +88,7 @@ def report_chr(data, chr, fw, strand=""):
     """
     Prints out positions from **data** to file **fw**
     """
-    positions = data.get(chr, {}).keys()
+    positions = list(data.get(chr, {}).keys())
     if positions==[]:
         return
     positions.sort()
@@ -105,7 +107,7 @@ def cluster_threshold(motif):
     Clusters and thresholds **data** from **motif**. The data is read-in from the .bed file
     """
     rlen = 0
-    for (chrom, strand), L in m3_light.db.regions_chrom.items():
+    for (chrom, strand), L in list(m3_light.db.regions_chrom.items()):
         for (region_id, start, stop, region_class) in L:
             rlen += stop-start+1
     
@@ -115,7 +117,7 @@ def cluster_threshold(motif):
     
     hc = {}
     # histogram of values by region
-    for (chrom, strand), L in m3_light.db.regions_chrom.items():
+    for (chrom, strand), L in list(m3_light.db.regions_chrom.items()):
         for (region_id, start, stop, region_class) in L:
             for i in range (start, stop):
                 v = bg.get_value(chrom, strand, i)
@@ -131,16 +133,16 @@ def cluster_threshold(motif):
     f_stat.write("regions_length=%s\n" % rlen)
     f_stat.write("motif=%s\n" % motif)
     
-    for key in hc.keys():
-        greater_equal = sum([hc[x] for x in hc.keys() if x>=key])
+    for key in list(hc.keys()):
+        greater_equal = sum([hc[x] for x in list(hc.keys()) if x>=key])
         greater_equal_p = float(greater_equal)/rlen*100
         f_stat.write("|h>=%s|=%s (%.3f %%)\n" % (key, greater_equal, greater_equal_p))
     f_stat.write("\n")
 
     for pth in m3_light.config.pth:
         distances = []
-        for key in hc.keys():
-            greater_equal = sum([hc[x] for x in hc.keys() if x>=key])
+        for key in list(hc.keys()):
+            greater_equal = sum([hc[x] for x in list(hc.keys()) if x>=key])
             greater_equal_p = float(greater_equal)/rlen*100
             distances.append((abs(pth-greater_equal_p), key))
         distances.sort()
@@ -149,9 +151,9 @@ def cluster_threshold(motif):
     for pth in m3_light.config.pth:
         data_extended_plus_filtered = {}
         data_extended_minus_filtered = {}
-        for (chrom, strand), L in m3_light.db.regions_chrom.items():
+        for (chrom, strand), L in list(m3_light.db.regions_chrom.items()):
             for (region_id, start, stop, region_class) in L:
-                for i in xrange(start, stop):
+                for i in range(start, stop):
                     v = bg.get_value(chrom, strand, i)
                     if v>=h_choosen[pth]:
                         if strand=="+":
@@ -159,13 +161,13 @@ def cluster_threshold(motif):
                         else:
                             data_extended_minus_filtered.setdefault(chrom, {}).setdefault(i, 1)
 
-        h_str = ["p%s_h%s" % (key, val) for key, val in h_choosen.items()]
+        h_str = ["p%s_h%s" % (key, val) for key, val in list(h_choosen.items())]
         h_str = "_".join(h_str)
     
         fw = open(m3_light.config.filename_pth(pth, "%s" % motif), "wt")
         # write choosen h_min to .bed file
         # fw.write("#%s\n" % h_str)
-        chrs = set(data_extended_plus_filtered.keys()).union(data_extended_minus_filtered.keys())
+        chrs = set(data_extended_plus_filtered.keys()).union(list(data_extended_minus_filtered.keys()))
         chrs = list(chrs)
         chrs.sort()
         for chr in chrs:
@@ -178,7 +180,7 @@ def make_bed(motif):
     Creates .bed file for motif
     """
     f = open(m3_light.config.filename_bed(motif), "wt")
-    chrs = m3_light.db.regions_chrom.keys()
+    chrs = list(m3_light.db.regions_chrom.keys())
     chrs.sort()
     for (chrom, strand) in chrs:
         results = []

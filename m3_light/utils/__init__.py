@@ -41,28 +41,28 @@ class Bedgraph():
             cDNA = float(r[3])
             strand = "+" if cDNA>=0 else "-"
             self.data.setdefault(chr, {}).setdefault(strand, {})
-            for p in xrange(start, stop):
+            for p in range(start, stop):
                 self.data[chr][strand][p] = abs(cDNA)
             r = f.readline()
         f.close()
 
     def chromosomes(self):
-        return self.data.keys()
+        return list(self.data.keys())
 
     def get_value(self, chr, strand, pos):
         return self.data.get(chr, {}).get(strand, {}).get(pos, 0)
 
     def region(self, chr, strand, pos_from, pos_to):
-        return sum([self.get_value(chr, strand, i) for i in xrange(pos_from, pos_to+1)])
+        return sum([self.get_value(chr, strand, i) for i in range(pos_from, pos_to+1)])
 
     def cluster(self, hws):
         data_window = {}
         self.data_sum = 0
-        for chr, chr_data in self.data.iteritems():
+        for chr, chr_data in self.data.items():
             data_window[chr] = {}
-            for strand, strand_data in chr_data.iteritems():
+            for strand, strand_data in chr_data.items():
                 data_window[chr][strand] = {}
-                for pos, value in strand_data.iteritems():
+                for pos, value in strand_data.items():
                     pos_from = max(0, pos-hws)
                     pos_to = max(0, pos+hws)
                     data_window[chr][strand][pos] = self.region(chr, strand, pos_from, pos_to)

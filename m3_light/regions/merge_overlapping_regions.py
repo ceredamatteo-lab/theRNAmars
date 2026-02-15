@@ -84,13 +84,13 @@ def read_regions(filename):
 
 regions = read_regions(input_file)
 region_pool = {}
-for rid, (chr, strand, list_start, list_stop) in regions.iteritems():
+for rid, (chr, strand, list_start, list_stop) in regions.items():
     reglist = region_pool.get(chr+"_"+strand, [])
     reglist.append((list_start, list_stop))
     region_pool[chr+"_"+strand] = reglist
 
 non_overlapping = {}
-for chr_strand, reglist in region_pool.iteritems():
+for chr_strand, reglist in region_pool.items():
     reglist.sort()
     regions = []
     while len(reglist)>0:
@@ -115,7 +115,7 @@ for chr_strand, reglist in region_pool.iteritems():
 f = open(output_file, "wt")
 f.write("\t".join(["id", "chrom", "strand", "start", "stop", "class"]) + "\n")
 id = 1
-for chr_strand, reglist in non_overlapping.iteritems():
+for chr_strand, reglist in non_overlapping.items():
     reglist.sort()
     chr = chr_strand.split("_")[0]
     strand = chr_strand.split("_")[1]

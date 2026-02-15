@@ -1,2 +1,2 @@
 # modules
-from Fasta import *
+from .Fasta import *
